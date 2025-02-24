@@ -44,15 +44,15 @@ const hashedpassword=await bcrypt.hash(password,10)
 
 // Login Route
 app.post('/login', async (req, res) => {
-    const { email, password,salt } = req.body;
+    const { email, password} = req.body;
     try {
         const user = await Expense.findOne({ where: { email } });
 
         if (!user) {
             return res.status(400).json({ message: 'User not found. Please sign up first.' });
         }
-
-        if (user.password !== password) {
+const ismatch=await bcrypt.compare(password,user.password);
+        if (!ismatch) {
             return res.status(401).json({ message: 'Incorrect password' });
         }
 
