@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt=require('bcrypt');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sequelize = require('./data/database');
@@ -33,8 +34,8 @@ app.post('/signup', async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'User already registered' });
         }
-
-        await Expense.create({ name, email, password });
+const hashedpassword=await bcrypt.hash(password,10)
+        await Expense.create({ name, email, password:hashedpassword });
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error registering user', error });
@@ -43,7 +44,7 @@ app.post('/signup', async (req, res) => {
 
 // Login Route
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password,salt } = req.body;
     try {
         const user = await Expense.findOne({ where: { email } });
 
