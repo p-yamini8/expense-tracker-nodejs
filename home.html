@@ -7,28 +7,73 @@
 </head>
 <body>
     <form id="homepage">
-    <label for="name">Enter your Name:</label>
-    <input type="text" id="name">
-    <label for="email">Enter your Email:</label>
-    <input type="email" id="email">
-    <input type="password" id="password">
-    <button type="submit">SignUp</button>
-</form>
+        <label for="signup-name">Enter your Name:</label>
+        <input type="text" id="signup-name">
+        <label for="signup-email">Enter your Email:</label>
+        <input type="email" id="signup-email">
+        <label for="signup-password">Enter your Password:</label>
+        <input type="password" id="signup-password">
+        <button type="submit">Login</button>
+        <a href="#" id="newuser">New User? Sign up now</a>
+    </form>
+
+    <form id="newuser-form" style="display:none">
+        <label for="name">Enter your Name:</label>
+        <input type="text" id="name">
+        <label for="email">Enter your Email:</label>
+        <input type="email" id="email">
+        <label for="password">Enter your Password:</label>
+        <input type="password" id="password">
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const signupForm = document.getElementById('newuser-form');
+        const homeForm = document.getElementById('homepage');
+        const newUserLink = document.getElementById('newuser');
+
+        // Handle login form submission
+        homeForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            const response = await fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+
+        // Handle new user signup form visibility
+        newUserLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            homeForm.style.display = 'none';
+            signupForm.style.display = 'block';
+        });
+
+        // Handle signup form submission
+        signupForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+    </script>
 </body>
-<script>
-    const homeform=document.getElementById('homepage');
-    homeform.addEventListener('submit',async function(event){
-        event.preventDefault()
-        const name=document.getElementById('name').value;
-        const email=document.getElementById('email').value;
-const password=document.getElementById('password').value;
-const response=await fetch('http://localhost:3000/signup',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name,email,password})
-})
-const result=await response.json();
-alert(result.message);
-    })
-</script>
 </html>
