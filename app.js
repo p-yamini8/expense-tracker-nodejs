@@ -3,8 +3,8 @@ const bcrypt=require('bcrypt');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const sequelize = require('./data/database');
-const Expense = require('./models/home'); // Make sure this is the correct model
-
+const User = require('./models/home'); // Make sure this is the correct model
+const Expense=require('./models/expenses');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,12 +30,12 @@ app.get('/', (req, res) => {
 app.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
     try {
-        const existingUser = await Expense.findOne({ where: { email } });
+        const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ message: 'User already registered' });
         }
 const hashedpassword=await bcrypt.hash(password,10)
-        await Expense.create({ name, email, password:hashedpassword });
+        await User.create({ name, email, password:hashedpassword });
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error registering user', error });
@@ -46,7 +46,7 @@ const hashedpassword=await bcrypt.hash(password,10)
 app.post('/login', async (req, res) => {
     const { email, password} = req.body;
     try {
-        const user = await Expense.findOne({ where: { email } });
+        const user = await User.findOne({ where: { email } });
 
         if (!user) {
             return res.status(400).json({ message: 'User not found. Please sign up first.' });
@@ -57,11 +57,22 @@ const ismatch=await bcrypt.compare(password,user.password);
         }
 
         res.status(200).json({ message: 'Login successful' });
+
+
     } catch (error) {
         res.status(500).json({ message: 'Error logging in', error });
     }
 });
-
+app.post('/addexpense',async(req,res)=>{
+    const {amount,description,category}=req.body;
+    try{
+        await Expense.create({amount:parseFloat(amount),description,category});
+        res.status(201).json({ message: 'User expenses added successfully' });
+    }
+    catch(error){
+        res.status(500).json({ message: 'Error adding  user expenses', error:error.message });
+    }
+})
 // Start Server
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
